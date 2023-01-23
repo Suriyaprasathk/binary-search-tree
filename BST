@@ -1,71 +1,49 @@
-#include "stdio.h"
-#include "stdlib.h"
-struct node{
+#include<stdio.h>
+#include<stdlib.h>
+struct node
+{
 	int data;
 	struct node *left,*right;
 };
-struct node *create(int x)
+struct node*create(int x)
 {
-	struct node *newnode;
-	newnode=(struct node*)malloc(sizeof(struct node));
+	struct node*newnode=(struct node*)malloc(sizeof(struct node));
 	newnode->data=x;
 	newnode->left=newnode->right=NULL;
+	return newnode;
 }
-struct node *insert(struct node*root,int x)
+struct node *insert(struct node *root,int x)
 {
 	if(root==NULL)
-	{
-		return create(x);
-	}
-	else if(x<root->data)
-	{
-		root->left=insert(root->left,x);
-	}
+	return create(x);
+	if(x>root->data)
+	root->right=insert(root->right,x);
 	else
-	{
-		root->right=insert(root->right,x);
-	}
- }
- void preorder(struct node*root)
- {
- 	if(root==NULL)
- 	{
- 		return;
-	}
-	else
-	 {
-	 	printf("%d->",root->data);
-	 	preorder(root->left);
-	 	preorder(root->right);
-	 }
-  }
-  
- void inorder(struct node *root)
- {
- 	if(root==NULL)
- 	{
- 		return;
-	}
-	else
-	 {
-	 	inorder(root->left);
-	 	printf("%d->",root->data);
-	 	inorder(root->right);
-	 }
+	root->left=insert(root->left,x);
+	return root;
+}
+void inorder(struct node *root)
+{
+	if(root==NULL) return;
+	inorder(root->left);
+	printf("%d->",root->data);
+	inorder(root->right);
 }
 
- void postorder(struct node *root)
- {
- 	if(root==NULL)
- 	{
- 		return;
-	}
-	else
-	 {
-	 	postorder(root->left);
-	 	postorder(root->right);
-	 	printf("%d->",root->data);
-	 }
+void postorder(struct node *root)
+{
+	if(root==NULL) return;
+	postorder(root->right);
+	postorder(root->left);
+	printf("%d->",root->data);
+}
+
+void preorder(struct node *root)
+{
+	if(root==NULL) return;
+	printf("%d->",root->data);
+	preorder(root->left);
+	preorder(root->right);
 }
 struct node *min(struct node *root)
 {
@@ -76,13 +54,13 @@ struct node *min(struct node *root)
 	else
 	{
 		return root;
-	} 
- } 
+	}
+}
 struct node *max(struct node *root)
 {
 	if(root->right!=NULL)
 	{
-		return root->right=max(root->right);
+		return root->right=min(root->right);
 	}
 	else
 	{
@@ -91,7 +69,11 @@ struct node *max(struct node *root)
 }
 struct node *del(struct node *root,int x)
 {
-	if(x>root->data)
+	if(root->data==NULL) 
+	{
+		return root;
+	}
+	else if(x>root->data)
 	{
 		root->right=del(root->right,x);
 	}
@@ -101,103 +83,89 @@ struct node *del(struct node *root,int x)
 	}
 	else
 	{
-		if(root->left==NULL && root->right==NULL)
-		{
-			free(root);
-			root=NULL;
-			
-		}
-		else if (root->left==NULL || root->right==NULL)
+		if(root->left==NULL)
 		{
 			struct node*temp;
-			if(root->left==NULL)
-			{
 			temp=root->right;
-			}
-			if(root->right==NULL)
-			{
-			temp=root->left;
-			}
 			free(root);
 			return temp;
 		}
-		else
+		else if(root->right==NULL)
 		{
-			struct node *temp=min(root->right);
-			root->data=temp->data;
-			temp->right=del(root->right,temp->data);			
+			struct node*temp;
+			temp=root->left;
+			free(root);
+			return temp;
 		}
+			struct node*temp=min(root->right);
+			root->data=temp->data;
+			root->right=del(root->right,temp->data);
+		
 	}
 	return root;
 }
+
 int main()
 {
-	struct node *root,*temp;
+	struct node *root;
 	root=NULL;
 	int choice=1,x;
-	while(choice){
-	printf("\nenter 1 to insert\nenter 2 to display\npress 3 to quit\npress 4 to find minimum value\npress 5 to find maximum value\npress 6 to delete");
-	printf("\nenter the choice\n");
-	scanf("%d",&choice);
-	switch(choice)
+	while(choice!=6)
 	{
-	case 1:
-		printf("\nenter the data:\n");
-		scanf("%d",&x);
-		root=insert(root,x);
-		break;
-	case 2:
-		printf("inorder traversal\n");
-		inorder(root);
-		printf("\n");
-		printf("preorder traversal\n");
-		preorder(root);
-		printf("\n");
-		printf("postorder traversal\n");
-		postorder(root);
-		break;
-	case 3:
-		return choice=0;
-		break;
-	case 4:
-		if(root==NULL)
+		printf("\nenter 1 to insert\nenter 2 to delete\nenter 3 to display\nenter 4 to find the minimum value\nenter 5 to find the maximum value\nenter 6 to quit\n");
+		printf("enter the choice");
+		scanf("%d",&choice);
+		switch(choice)
 		{
-			printf("empty tree");
+			case 1:
+				printf("\nenter the value to insert\n");
+				scanf("%d",&x);
+				root=insert(root,x);
+				break;
+			case 2:
+				printf("enter the value to delete:\n");
+				scanf("%d",&x);
+				root=del(root,x);
+			break;
+			case 3:
+			printf("\ninorder traversal:\n");
+			inorder(root);
+			printf("");
+			printf("\npreorder traversal:\n");
+			preorder(root);
+			printf("");
+			printf("\npostorder traversal:\n");
+			postorder(root);
+			break;
+			case 4:
+			if(root==NULL)
+			{
+				printf("tree is empty");
+			}
+			else
+			{
+				struct node *temp=min(root);
+				printf("the minimum value is %d",temp->data);
+			}	
+			break;
+			case 5:
+			if(root==NULL)
+			{
+				printf("tree is empty");
+			}
+			else
+			{
+				struct node *temp=max(root);
+				printf("the minimum value is %d",temp->data);
+			}	
+			break;
+			case 6:
+				return choice=0;
+				break;
+			default:
+				printf("enter the valid input");
+				break;
+
 		}
-		else
-		{
-			temp=min(root);
-			printf("the minimum value is %d",temp->data);
-			
-		}
-		break;
-	case 5:
-		if(root==NULL)
-		{
-			printf("empty tree");
-		}
-		else
-		{
-			temp=max(root);
-			printf("the minimum value is %d",temp->data);
-			
-		}
-		break;
-	case 6:
-		if(root==NULL)
-		{
-			printf("empty tree");
-		}
-		else
-		{
-			printf("\nenter the value to delete:\n");
-			scanf("%d",&x);
-			root=del(root,x);
-		}
-		
-	default:
-		printf("enter the valid choice");
-		
-}
-}
+	}
 }
